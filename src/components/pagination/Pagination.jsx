@@ -1,37 +1,30 @@
+"use client";
+
 import React from "react";
 import styles from "./pagination.module.css";
+import { useRouter } from "next/navigation";
 
-const Pagination = ({ currentPage, totalPages, onPageChange }) => {
-  const handlePageChange = (page) => {
-    if (page !== currentPage) {
-      onPageChange(page);
-    }
-  };
+const Pagination = ({ page, hasPrev, hasNext }) => {
+  const router = useRouter();
 
   return (
-    <div className={styles.pagination}>
-      {/* <button
-        onClick={() => handlePageChange(currentPage - 1)}
-        disabled={currentPage === 1}
+    <div className={styles.container}>
+      <button
+        className={styles.button}
+        disabled={!hasPrev}
+        onClick={() => router.push(`?page=${page - 1}`)}
       >
         Previous
       </button>
-      {Array.from({ length: totalPages }, (_, index) => (
-        <button
-          key={index + 1}
-          onClick={() => handlePageChange(index + 1)}
-          className={currentPage === index + 1 ? "active" : ""}
-        >
-          {index + 1}
-        </button>
-      ))}
       <button
-        onClick={() => handlePageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
+        disabled={!hasNext}
+        className={styles.button}
+        onClick={() => router.push(`?page=${page + 1}`)}
       >
         Next
-      </button> */}
+      </button>
     </div>
   );
-}
+};
+
 export default Pagination;

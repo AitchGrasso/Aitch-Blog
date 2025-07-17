@@ -6,13 +6,6 @@ import { useEffect, useState } from "react";
 import "react-quill/dist/quill.bubble.css";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-// import {
-//   getStorage,
-//   ref,
-//   uploadBytesResumable,
-//   getDownloadURL,
-// } from "firebase/storage";
-// import { app } from "@/utils/firebase";
 import ReactQuill from "react-quill";
 
 const WritePage = () => {
@@ -20,46 +13,34 @@ const WritePage = () => {
   const router = useRouter();
 
   const [open, setOpen] = useState(false);
-//   const [file, setFile] = useState(null);
-//   const [media, setMedia] = useState("");
+  const [file, setFile] = useState(null);
+  const [media, setMedia] = useState("");
   const [value, setValue] = useState("");
-//   const [title, setTitle] = useState("");
-//   const [catSlug, setCatSlug] = useState("");
+  const [title, setTitle] = useState("");
+  const [catSlug, setCatSlug] = useState("");
 
-//   useEffect(() => {
-//     const storage = getStorage(app);
-//     const upload = () => {
-//       const name = new Date().getTime() + file.name;
-//       const storageRef = ref(storage, name);
+  useEffect(() => {
+  const upload = async () => {
+    const data = new FormData();
+    data.append("file", file);
+    data.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET); 
+    data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);       
 
-//       const uploadTask = uploadBytesResumable(storageRef, file);
+    try {
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      setMedia(result.secure_url);
+    } catch (err) {
+      console.error("Cloudinary upload failed", err);
+    }
+  };
 
-//       uploadTask.on(
-//         "state_changed",
-//         (snapshot) => {
-//           const progress =
-//             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-//           console.log("Upload is " + progress + "% done");
-//           switch (snapshot.state) {
-//             case "paused":
-//               console.log("Upload is paused");
-//               break;
-//             case "running":
-//               console.log("Upload is running");
-//               break;
-//           }
-//         },
-//         (error) => {},
-//         () => {
-//           getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-//             setMedia(downloadURL);
-//           });
-//         }
-//       );
-//     };
+  if (file) upload();
+}, [file]);
 
-//     file && upload();
-//   }, [file]);
 
   if (status === "loading") {
     return <div className={styles.loading}>Loading...</div>;
@@ -69,31 +50,31 @@ const WritePage = () => {
     router.push("/");
   }
 
-//   const slugify = (str) =>
-//     str
-//       .toLowerCase()
-//       .trim()
-//       .replace(/[^\w\s-]/g, "")
-//       .replace(/[\s_-]+/g, "-")
-//       .replace(/^-+|-+$/g, "");
+  const slugify = (str) =>
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
 
-//   const handleSubmit = async () => {
-//     const res = await fetch("/api/posts", {
-//       method: "POST",
-//       body: JSON.stringify({
-//         title,
-//         desc: value,
-//         img: media,
-//         slug: slugify(title),
-//         catSlug: catSlug || "style", //If not selected, choose the general category
-//       }),
-//     });
+  const handleSubmit = async () => {
+    const res = await fetch("/api/posts", {
+      method: "POST",
+      body: JSON.stringify({
+        title,
+        desc: value,
+        img: media,
+        slug: slugify(title),
+        catSlug: catSlug || "style", //If not selected, choose the general category
+      }),
+    });
 
-//     if (res.status === 200) {
-//       const data = await res.json();
-//       router.push(`/posts/${data.slug}`);
-//     }
-//   };
+    if (res.status === 200) {
+      const data = await res.json();
+      router.push(`/posts/${data.slug}`);
+    }
+  };
 
   return (
     <div className={styles.container}>
@@ -144,7 +125,7 @@ const WritePage = () => {
           placeholder="Tell your story..."
         />
       </div>
-      <button className={styles.publish} >
+      <button className={styles.publish} onClick={handleSubmit}>
         Publish
       </button>
     </div>

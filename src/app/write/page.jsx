@@ -6,49 +6,54 @@ import { useEffect, useState } from "react";
 import "react-quill/dist/quill.bubble.css";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import ReactQuill from "react-quill";
+
+import dynamic from "next/dynamic";
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false }); //react-quill is not ssr-compatible by default. It tries ot access document when it loads. 
 
 const WritePage = () => {
   const { status } = useSession();
   const router = useRouter();
 
-  const [open, setOpen] = useState(false);
-  const [file, setFile] = useState(null);
+  // const [open, setOpen] = useState(false);
+  // const [file, setFile] = useState(null);
   const [media, setMedia] = useState("");
   const [value, setValue] = useState("");
   const [title, setTitle] = useState("");
   const [catSlug, setCatSlug] = useState("");
 
-  useEffect(() => {
-  const upload = async () => {
-    const data = new FormData();
-    data.append("file", file);
-    data.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET); 
-    data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);       
+//   useEffect(() => {
+//   const upload = async () => {
+//     const data = new FormData();
+//     data.append("file", file);
+//     data.append("upload_preset", process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET); 
+//     data.append("cloud_name", process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME);       
 
-    try {
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
-        method: "POST",
-        body: data,
-      });
-      const result = await res.json();
-      setMedia(result.secure_url);
-    } catch (err) {
-      console.error("Cloudinary upload failed", err);
-    }
-  };
+//     try {
+//       const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+//         method: "POST",
+//         body: data,
+//       });
+//       const result = await res.json();
+//       setMedia(result.secure_url);
+//     } catch (err) {
+//       console.error("Cloudinary upload failed", err);
+//     }
+//   };
 
-  if (file) upload();
-}, [file]);
+//   if (file) upload();
+// }, [file]);
+
+useEffect(() => {
+  if (status === "unauthenticated") {
+    router.push("/");
+  }
+}, [status, router]);
 
 
   if (status === "loading") {
     return <div className={styles.loading}>Loading...</div>;
   }
 
-  if (status === "unauthenticated") {
-    router.push("/");
-  }
 
   const slugify = (str) =>
     str
@@ -93,7 +98,7 @@ const WritePage = () => {
         <option value="coding">coding</option>
       </select>
       <div className={styles.editor}>
-        <button className={styles.button} onClick={() => setOpen(!open)}>
+        {/* <button className={styles.button} onClick={() => setOpen(!open)}>
           <Image src="/plus.png" alt="" width={16} height={16} />
         </button>
         {open && (
@@ -116,7 +121,7 @@ const WritePage = () => {
               <Image src="/video.png" alt="" width={16} height={16} />
             </button>
           </div>
-        )}
+        )} */}
         <ReactQuill
           className={styles.textArea}
           theme="bubble"

@@ -1,7 +1,7 @@
 import Navbar from '../components/navbar/Navbar'
 import './globals.css'
 import { Inter } from 'next/font/google'
-import Footer from '../components/foot/Foot'
+import Footer from '../components/footer/Footer'
 import { ThemeContextProvider } from '../context/ThemeContext'
 import ThemeProvider from '../providers/ThemeProvider'
 import AuthProvider from '../providers/AuthProvider'
@@ -9,8 +9,8 @@ import AuthProvider from '../providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'Blog App',
-  description: 'The best blog app!',
+  title: 'Aitch Blog',
+  description: 'The blog of Aitch (H) Grasso.',
 }
 
 export default function RootLayout({ children }) {

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import styles from "./commentm.module.css";
+import styles from "./comment.module.css";
 import Image from "next/image";
 import useSWR from "swr";
 import { useSession } from "next-auth/react";
@@ -25,14 +25,14 @@ const Comments = ({ postSlug }) => {
   const { status } = useSession();
 
   const { data, mutate, isLoading } = useSWR(
-    `/api/comments?postSlug=${postSlug}`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/api/comments?postSlug=${postSlug}`,
     fetcher
   );
 
   const [desc, setDesc] = useState("");
 
   const handleSubmit = async () => {
-    await fetch("/api/comments", {
+    await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/comments`, {
       method: "POST",
       body: JSON.stringify({ desc, postSlug }),
     });

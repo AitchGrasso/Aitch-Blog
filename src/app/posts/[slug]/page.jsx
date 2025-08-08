@@ -1,10 +1,10 @@
-import Menu from "@/components/discoverList/DiscoverList";
+import Menu from "@/components/menuList/MenuList";
 import styles from "./singlePage.module.css";
 import Image from "next/image";
-import Comments from "@/components/commentm/Commentm";
+import Comments from "@/components/comment/Comment";
 
 const getData = async (slug) => {
-  const res = await fetch(`/api/posts/${slug}`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/posts/${slug}`, {
     cache: "no-store",
   });
 

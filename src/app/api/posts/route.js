@@ -6,47 +6,45 @@ import { NextResponse } from "next/server";
 export const GET = async (req) => {
   const { searchParams } = new URL(req.url);
 
-  const page = searchParams.get("page");
+  const latest = searchParams.get("latest");
+  const page = parseInt(searchParams.get("page") || "1");
   const cat = searchParams.get("cat");
 
   const POST_PER_PAGE = 2;
 
-  const query = {
-    take: POST_PER_PAGE,
-    skip: POST_PER_PAGE * (page - 1),
-    where: {
-      ...(cat && { catSlug: cat }),
-    },
-  };
-
-
-
-
-
-
-  
-  
   try {
+    if (latest === "true") {
+      const post = await prisma.post.findFirst({
+        orderBy: { createdAt: "desc" },
+      });
+      return new NextResponse(JSON.stringify({ post }), { status: 200 });
+    }
+
+    const query = {
+      take: POST_PER_PAGE,
+      skip: POST_PER_PAGE * (page - 1),
+      where: {
+        ...(cat && { catSlug: cat }),
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    };
+
     const [posts, count] = await prisma.$transaction([
       prisma.post.findMany(query),
       prisma.post.count({ where: query.where }),
     ]);
-    return new NextResponse(JSON.stringify({ posts, count }, { status: 200 }));
+
+    return new NextResponse(JSON.stringify({ posts, count }), { status: 200 });
   } catch (err) {
     console.log(err);
     return new NextResponse(
-      JSON.stringify({ message: "Something went wrong!" }, { status: 500 })
+      JSON.stringify({ message: "Something went wrong!" }),
+      { status: 500 }
     );
   }
 };
-
-
-
-
-
-
-
-
 
 
 // CREATE A POST
@@ -54,9 +52,9 @@ export const POST = async (req) => {
   const session = await getAuthSession();
 
   if (!session) {
-    return new NextResponse(
-      JSON.stringify({ message: "Not Authenticated!" }, { status: 401 })
-    );
+    return new NextResponse(JSON.stringify({ message: "Not Authenticated!" }), {
+      status: 401,
+    });
   }
 
   try {
@@ -65,7 +63,7 @@ export const POST = async (req) => {
       data: { ...body, userEmail: session.user.email },
     });
 
-    return new NextResponse(JSON.stringify(post, { status: 200 }));
+    return new NextResponse(JSON.stringify(post), { status: 200 });
   } catch (err) {
     console.log(err);
     return new NextResponse(

@@ -1,6 +1,6 @@
-import CardList from "@/components/tempList/TempList";
+import CardList from "@/components/cardList/CardList";
 import styles from "./blogPage.module.css";
-import Menu from "@/components/discoverList/DiscoverList";
+import Menu from "@/components/menuList/MenuList";
 
 const BlogPage = ({ searchParams }) => {
   const page = parseInt(searchParams.page) || 1;
